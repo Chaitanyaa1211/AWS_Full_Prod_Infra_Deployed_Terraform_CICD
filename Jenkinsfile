@@ -58,7 +58,8 @@ pipeline {
                 ]]) {
                     sh '''
                     aws ssm send-command \
-                    --document-name "AWS-RunShellScript" \
+                    --region us-east-1 \
+		    --document-name "AWS-RunShellScript" \
                     --targets "Key=tag:Name,Values=app-instance" \
                     --parameters commands="
                     docker pull chaitanyaaaa/devops-app:${TAG} &&
