@@ -9,4 +9,4 @@ systemctl start docker
 systemctl enable docker
 
 # Pull and run app (replace with your Docker Hub image)
-docker run -d -p 80:3000 chaitanyaaaa/smartcalc:latest
+docker run -d -p 80:3000 chaitanyaaaa/devops-app:latest
