@@ -4,10 +4,10 @@ pipeline {
     environment {
         DOCKER_IMAGE = "chaitanyaaaa/devops-app"
         TAG = "v1.${BUILD_NUMBER}"
+        AWS_DEFAULT_REGION = "us-east-1"
     }
 
     stages {
-
 
         stage('Build Docker Image') {
             steps {
@@ -58,14 +58,13 @@ pipeline {
                 ]]) {
                     sh '''
                     aws ssm send-command \
-                    --region us-east-1 \
-		    --document-name "AWS-RunShellScript" \
+                    --document-name "AWS-RunShellScript" \
                     --targets "Key=tag:Name,Values=app-instance" \
-                    --parameters commands="
-                    docker pull chaitanyaaaa/devops-app:${TAG} &&
-                    docker stop \$(docker ps -q) || true &&
-                    docker run -d -p 80:3000 chaitanyaaaa/devops-app:${TAG}
-                    "
+                    --parameters 'commands=[
+                        "docker pull chaitanyaaaa/devops-app:'"${TAG}"'",
+                        "docker stop $(docker ps -q) || true",
+                        "docker run -d -p 80:3000 chaitanyaaaa/devops-app:'"${TAG}"'"
+                    ]'
                     '''
                 }
             }
