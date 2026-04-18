@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "yourusername/devops-app"
+        DOCKER_IMAGE = "chaitanyaaaa/devops-app"
         TAG = "v1.${BUILD_NUMBER}"
     }
 
@@ -18,7 +18,7 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'docker-creds',
+                    credentialsId: 'DockerHub-Creds',
                     usernameVariable: 'USER',
                     passwordVariable: 'PASS'
                 )]) {
@@ -47,9 +47,9 @@ pipeline {
                 --document-name "AWS-RunShellScript" \
                 --targets "Key=tag:Name,Values=app-instance" \
                 --parameters commands="
-                docker pull yourusername/devops-app:${TAG} &&
+                docker pull chaitanyaaaa/devops-app:${TAG} &&
                 docker stop \$(docker ps -q) || true &&
-                docker run -d -p 80:3000 yourusername/devops-app:${TAG}
+                docker run -d -p 80:3000 chaitanyaaaa/devops-app:${TAG}
                 "
                 '''
             }
