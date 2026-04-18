@@ -30,28 +30,43 @@ pipeline {
 
         stage('Terraform Init') {
             steps {
-                sh 'cd environments/dev && terraform init'
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'aws-creds'
+                ]]) {
+                    sh 'cd environments/dev && terraform init'
+                }
             }
         }
 
         stage('Terraform Apply') {
             steps {
-                sh 'cd environments/dev && terraform apply -auto-approve'
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'aws-creds'
+                ]]) {
+                    sh 'cd environments/dev && terraform apply -auto-approve'
+                }
             }
         }
 
         stage('Deploy to EC2 via SSM') {
             steps {
-                sh '''
-                aws ssm send-command \
-                --document-name "AWS-RunShellScript" \
-                --targets "Key=tag:Name,Values=app-instance" \
-                --parameters commands="
-                docker pull chaitanyaaaa/devops-app:${TAG} &&
-                docker stop \$(docker ps -q) || true &&
-                docker run -d -p 80:3000 chaitanyaaaa/devops-app:${TAG}
-                "
-                '''
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'aws-creds'
+                ]]) {
+                    sh '''
+                    aws ssm send-command \
+                    --document-name "AWS-RunShellScript" \
+                    --targets "Key=tag:Name,Values=app-instance" \
+                    --parameters commands="
+                    docker pull chaitanyaaaa/devops-app:${TAG} &&
+                    docker stop \$(docker ps -q) || true &&
+                    docker run -d -p 80:3000 chaitanyaaaa/devops-app:${TAG}
+                    "
+                    '''
+                }
             }
         }
     }
